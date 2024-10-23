@@ -1,15 +1,20 @@
 from app.persistence.repository import InMemoryRepository
 from app.models.user import User
-from app.persistence.repository import AmenityRepository
+from app.models.place import Place
+from app.models.amenity import Amenity
 
 class HBnBFacade:
     def __init__(self):
         self.user_repo = InMemoryRepository()
+        self.amenity_repo = InMemoryRepository()
 
     def create_user(self, user_data):
         user = User(**user_data)
         self.user_repo.add(user)
         return user
+    
+    def get_all_user(self):
+        return self.user_repo.get_all()
 
     def get_user(self, user_id):
         return self.user_repo.get(user_id)
@@ -18,27 +23,16 @@ class HBnBFacade:
         return self.user_repo.get_by_attribute('email', email)
     
     def create_amenity(self, amenity_data):
-        # Placeholder for logic to create an amenity task 3
-        if 'name' not in amenity_data or not amenity_data['name']:
-            raise ValueError('The name not exists')
-        """
-        new_amenity = (name=amenity_data['name'])
-        save = self.amenity_repo.save(new_amenity)
-        return {
-            "id": save.id,
-            "name": save.name
-        }
-        """
-        pass
-        
+        amenity = Amenity(**amenity_data)
+        self.amenity_repo.add(amenity)
+        return amenity
 
     def get_amenity(self, amenity_id):
-        # Placeholder for logic to retrieve an amenity by ID task 3
-        pass
+        return self.user_repo.get()
+
 
     def get_all_amenities(self):
-        # Placeholder for logic to retrieve all amenities task 3
-        pass
+        return self.amenity_repo.get_all()
 
     def update_amenity(self, amenity_id, amenity_data):
         # Placeholder for logic to update an amenity task 3 PUT
