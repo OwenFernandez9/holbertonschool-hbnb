@@ -1,6 +1,5 @@
 from flask_restx import Namespace, Resource, fields
 from app.services.facade import HBnBFacade
-# task 3
 
 api = Namespace('amenities', description='Amenity operations')
 
@@ -18,13 +17,19 @@ class AmenityList(Resource):
     @api.response(400, 'Invalid input data')
     def post(self):
         """Register a new amenity"""
-        # Placeholder for the logic to register a new amenity
-        pass
+        amenity_data = api.payload
+
+        existing_amenity = facade.get_amenity_name(amenity_data['name'])
+        if existing_amenity:
+            return {'error': 'Amenity alredy exists'}, 404
+        
+        amenity = facade.create_amenity(amenity_data)
+        return {'id': amenity.id, 'name': amenity.name}, 200
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
-        """Retrieve a list of all amenities"""
-        pass
+        all_amenities = facade.get_all_amenities()
+        return all_amenities
 
 @api.route('/<amenity_id>')
 class AmenityResource(Resource):
@@ -45,4 +50,8 @@ class AmenityResource(Resource):
     def put(self, amenity_id):
         """Update an amenity's information"""
         # Placeholder for the logic to update an amenity by ID
-        pass
+        amenity = facade.update_amenity(amenity_id, api.payload)
+
+        if not amenity:
+            return {"error": "no encontre este amenity"}, 404
+        return {'id': amenity.id, 'name': amenity.name}, 200
