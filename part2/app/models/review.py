@@ -1,13 +1,13 @@
 import uuid
 from datetime import datetime
-from place import Place
-from user import User
+from app.models.place import Place
+from app.models.user import User
 
 
 
 class Review:
-    def __inti__(self, text: str, rating: int, place: Place, user: User):
-        self.id = id
+    def __init__(self, text: str, rating: int, place: Place, user: User):
+        self.id = str(uuid.uuid4())
         self.text = self.validate_text(text)
         self.rating = self.validate_rating(rating)
         self.place = self.validate_place(place)

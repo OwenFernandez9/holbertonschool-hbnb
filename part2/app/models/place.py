@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from user import User
+from app.models.user import User
 
 class Place:
     def __init__(self, title: str, price: float, latitude: float, longitude: float, owner: User, description: str = None):

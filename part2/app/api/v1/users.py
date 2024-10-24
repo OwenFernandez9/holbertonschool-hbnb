@@ -1,5 +1,5 @@
 from flask_restx import Namespace, Resource, fields
-from app.services.facade import HBnBFacade
+from app.services import facade
 
 api = Namespace('users', description='User operations')
 
@@ -9,8 +9,6 @@ user_model = api.model('User', {
     'last_name': fields.String(required=True, description='Last name of the user'),
     'email': fields.String(required=True, description='Email of the user')
 })
-
-facade = HBnBFacade()
 
 @api.route('/')
 class UserList(Resource):
@@ -44,8 +42,10 @@ class UserResource(Resource):
         if not user:
             return {'error': 'User not found'}, 404
         return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email}, 200
-    def put():
+    
+    @api.expect(user_model, validate=True)
+    def put(self, user_id):
         user = facade.update_user(user_id, api.payload)
         if not user:
             return {"error": "Is not user"}, 404
-        return {'id': user.id, 'name': user.name}, 200
+        return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email}, 201

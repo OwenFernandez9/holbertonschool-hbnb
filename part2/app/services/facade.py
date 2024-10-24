@@ -2,12 +2,14 @@ from app.persistence.repository import InMemoryRepository
 from app.models.user import User
 from app.models.place import Place
 from app.models.amenity import Amenity
+from app.models.review import Review
 
 class HBnBFacade:
     def __init__(self):
         self.user_repo = InMemoryRepository()
         self.amenity_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
+        self.review_repo = InMemoryRepository()
 
     def create_user(self, user_data):
         user = User(**user_data)
@@ -67,3 +69,36 @@ class HBnBFacade:
             return None
         place_update = self.place_repo.update(place_data)
         return place_update
+    
+    def create_review(self, review_data):
+        review = Review(**review_data)
+        self.review_repo.add(review)
+        return review
+
+    def get_review(self, review_id):
+        return self.review_repo.get(review_id)
+
+    def get_all_reviews(self):
+        return self.review_repo.get_all()
+
+    def get_reviews_by_place(self, place_id):
+        all_reviews = self.review_repo.get_all()
+        place_reviews = []
+        for review in all_reviews:
+            if review.place.id == place_id:
+                place_reviews.append(review)
+
+        return place_reviews
+
+    def update_review(self, review_id, review_data):
+        verify_id = self.review_repo.get(review_id)
+        if not verify_id:
+            return None
+        review_update = self.review_repo.update(review_data)
+        return review_update
+
+    def delete_review(self, review_id):
+        review = self.review_repo.get(review_id)
+        if not review:
+            return None
+        self.review_repo.delete(review_id)
