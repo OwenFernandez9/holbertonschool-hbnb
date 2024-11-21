@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 import re
-from flask_bcrypt import Bcrypt
+from app import bcrypt
 
 
 class User:
@@ -11,6 +11,7 @@ class User:
         self.last_name = self.validate_name(last_name)
         self.email = self.validate_email(email)
         self.is_admin = is_admin
+        self.hash_password(password)
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
     
