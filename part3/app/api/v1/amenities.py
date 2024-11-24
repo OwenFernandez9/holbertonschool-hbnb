@@ -1,5 +1,6 @@
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restx import Namespace, Resource, fields
+from flask import jsonify
 from app.services import facade
 
 
@@ -19,19 +20,24 @@ class AmenityList(Resource):
     @jwt_required()
     def post(self):
         """Register a new amenity"""
+        current_user = get_jwt_identity()
+        
+        if not current_user.get('is_admin'):
+            return {'error': 'Admin privileges required'}, 403  
+         
         amenity_data = api.payload
 
-        existing_amenity = facade.get_amenity(amenity_data['name'])
+        existing_amenity = facade.get_amenity_by_name(amenity_data['name'])
         if existing_amenity:
-            return {'error': 'Amenity alredy exists'}, 404
+            return {'error': 'Amenity alredy exists'}, 409
         
         amenity = facade.create_amenity(amenity_data)
         return {'id': amenity.id, 'name': amenity.name}, 200
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
-        all_amenities = facade.get_all_amenities()
-        return all_amenities
+        all_amenities = facade.get_all_amenities() 
+        return jsonify([x.__dict__ for x in all_amenities])
 
 @api.route('/<amenity_id>')
 class AmenityResource(Resource):
@@ -52,6 +58,11 @@ class AmenityResource(Resource):
     @jwt_required()
     def put(self, amenity_id):
         """Update an amenity's information"""
+        current_user = get_jwt_identity()
+        
+        if not current_user.get('is_admin'):
+            return {'error': 'Admin privileges required'}, 403  
+        
         # Placeholder for the logic to update an amenity by ID
         amenity = facade.update_amenity(amenity_id, api.payload)
 

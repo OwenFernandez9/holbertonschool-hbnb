@@ -26,16 +26,12 @@ class UserList(Resource):
         """Register a new user"""
         current_user = get_jwt_identity()
         user_data = api.payload
-        user = facade.get_user(current_user['id'])
 
         # Simulate email uniqueness check (to be replaced by real validation with persistence)
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             return {'error': 'Email already registered'}, 400
         
-        email = user_data.get('email')
-        if facade.get_user_by_email(email):
-            return {"error": "Admin privileges required"}, 403
         new_user = facade.create_user(user_data)
         return {'id': new_user.id, 'first_name': new_user.first_name, 'last_name': new_user.last_name, 'email': new_user.email}, 201
     
@@ -60,11 +56,28 @@ class UserResource(Resource):
     @jwt_required()
     def put(self, user_id):
         current_user = get_jwt_identity()
+        
+        if not current_user.get('is_admin'):
+            return {'error': 'Admin privileges required'}, 403   
+        
         iduser = facade.get_user(user_id)
-        if 
+        
+        data = request.json
+        
+        if data.get("password"):
+            return {"error": "You cannot modify password."}, 400
+        
+        email = data.get('email')
+
+        if email:
+            # Check if email is already in use
+            existing_user = facade.get_user_by_email(email)
+            if existing_user and existing_user.id != user_id:
+                return {'error': 'Email is already in use'}, 400
+        
         user = facade.update_user(user_id, api.payload)
         if not user:
-            return {"error": "Is not user"}, 404
+            return {"error": "Is not user"}, 404 
         return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email}, 201
     
     class Prueba(Resource):
