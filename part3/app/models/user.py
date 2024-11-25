@@ -1,43 +1,30 @@
-import uuid
-from datetime import datetime
 import re
-from app import bcrypt
+from app import db, bcrypt
+from .baseclass import BaseModel
+from sqlalchemy.orm import validates
 
 
-class User:
-    def __init__(self, first_name: str, last_name: str, email: str, password: str, is_admin: bool = False):
-        self.id = str(uuid.uuid4())
-        self.first_name = self.validate_name(first_name)
-        self.last_name = self.validate_name(last_name)
-        self.email = self.validate_email(email)
-        self.is_admin = is_admin
-        self.hash_password(password)
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
+class User(BaseModel):
+    __tablename__ = 'users'
+
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(120), nullable=False, unique=True)
+    password = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
     
-    @staticmethod
-    def validate_name(name: str) -> str:
+    @validates("first_name", "last_name")
+    def validate_name(self, key, name: str) -> str:
         if len(name) > 50:
             raise ValueError("Name cannot exceed 50 characters.")
         return name
 
-    @staticmethod
-    def validate_email(email: str) -> str:
+    @validates("email")
+    def validate_email(self, key, email: str) -> str:
         email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         if not re.match(email_regex, email):
             raise ValueError("Invalid email format.")
         return email
-
-    def update(self, first_name: str = None, last_name: str = None, email: str = None, is_admin: bool = None):
-        if first_name:
-            self.first_name = self.validate_name(first_name)
-        if last_name:
-            self.last_name = self.validate_name(last_name)
-        if email:
-            self.email = self.validate_email(email)
-        if is_admin is not None:
-            self.is_admin = is_admin
-        self.updated_at = datetime.now()
 
     def hash_password(self, password):
         """Hashes the password before storing it."""

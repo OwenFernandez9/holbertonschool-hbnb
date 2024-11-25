@@ -21,10 +21,9 @@ class UserList(Resource):
     @api.response(201, 'User successfully created')
     @api.response(400, 'Email already registered')
     @api.response(400, 'Invalid input data')
-    @jwt_required()
     def post(self):
         """Register a new user"""
-        current_user = get_jwt_identity()
+        # TODO [fabri] verificar si esto tiene que ser solo admin
         user_data = api.payload
 
         # Simulate email uniqueness check (to be replaced by real validation with persistence)
@@ -36,11 +35,6 @@ class UserList(Resource):
         return {'id': new_user.id, 'first_name': new_user.first_name, 'last_name': new_user.last_name, 'email': new_user.email}, 201
     
     
-    def get(self):
-        users = facade.get_all_user()
-        return users
-        #tenes q hacer un return con un bucle...te la tiro guei
-
 @api.route('/<user_id>')
 class UserResource(Resource):
     @api.response(200, 'User details retrieved successfully')
