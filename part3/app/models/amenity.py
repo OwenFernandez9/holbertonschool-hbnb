@@ -1,16 +1,16 @@
-import uuid
+from app import db
 from datetime import datetime
+from sqlalchemy.orm import validates
+from .baseclass import BaseModel
 
 
-class Amenity:
-    def __init__(self, name: str):
-        self.id = str(uuid.uuid4())
-        self.name = self.validate_name(name)
-        self.created_at = datetime.now()
-        self.update_at = datetime.now()
+class Amenity(BaseModel):
+    __tablename__ = 'amenities'
 
-    @staticmethod
-    def validate_name(name: str) -> str:
+    name = db.Column(db.String(50), nullable=False)
+
+    @validates("name")
+    def validate_name(self, key, name: str) -> str:
         if len(name) > 50:
             raise ValueError("Name cannot exceed 50 characters.")
         return name

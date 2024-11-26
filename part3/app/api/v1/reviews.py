@@ -26,11 +26,15 @@ class ReviewList(Resource):
         review_data = api.payload
         
         current_user = get_jwt_identity()
-        place = facade.get_place('place_id')
-        if place != current_user:
+        place = facade.get_place(review_data['place_id'])
+        if place['owner_id'] == current_user['user_id']:
             return {'error': 'You cannot review your own place.'}, 403
-        if current_user['user_id']:
-            return {'error': 'You have already reviewed this place.'}
+        
+        review_existing = facade.get_reviews_by_place(review_data['place_id'])
+        for review in review_existing:
+            if review.user.id == current_user['id']:        
+        #if current_user['user_id']:
+                return {'error': 'You have already reviewed this place.'}, 400
         user = facade.get_user(review_data['user_id'])
         if not user:
             return {'error': 'User not found'}, 400

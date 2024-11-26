@@ -31,7 +31,6 @@ class HBnBFacade:
         user_update = self.user_repo.update(user_data)
         return user_update
         
-    
     def create_amenity(self, amenity_data):
         amenity = Amenity(**amenity_data)
         self.amenity_repo.add(amenity)

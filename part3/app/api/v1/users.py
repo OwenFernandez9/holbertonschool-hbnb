@@ -73,19 +73,3 @@ class UserResource(Resource):
         if not user:
             return {"error": "Is not user"}, 404 
         return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email}, 201
-    
-    class Prueba(Resource):
-        @api.expect(user_model, validate=True)
-        @api.response(201, 'User successfully created')
-        @api.response(400, 'Email already registred')
-        @api.response(400, 'Invalid input data')
-        def post(self):
-            user_data = request.json
-            data = api.payload
-            email = user_data.get('email')
-
-            if facade.get_user_by_email(email):
-                return {'error': 'Email already registered'}, 400
-            
-            new_user = facade.create_user(user_data)
-            return {'id': new_user.id, 'mensaje': 'registrado con exito papa'}, 201
